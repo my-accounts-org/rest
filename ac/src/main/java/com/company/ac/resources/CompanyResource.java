@@ -36,8 +36,13 @@ public class CompanyResource {
 	
 	@DELETE
 	@Path("/{id}")
-	public boolean delete(@PathParam("id") int id) {
-		
+	public boolean delete(@PathParam("id") long id) {		
 		return companySerive.delete(id);
+	}
+	
+	@POST
+	@Path("selected")
+	public boolean setDefaultCompany(Company company) {		
+		return companySerive.setDefaultCompany(company);
 	}
 }

@@ -17,6 +17,8 @@ import java.util.logging.Logger;
 import javax.naming.NamingException;
 
 import com.company.ac.datasource.AccountsDataSource;
+import com.company.ac.models.company.Company;
+import com.company.ac.utils.DateUtil;
 
 public class DBUtils {
 		
@@ -141,6 +143,81 @@ public class DBUtils {
 		
 		return result;
 		
+	}
+
+	public boolean insert(String sql) {
+		Connection c = null;
+		Statement s = null;
+		boolean result = false;
+		try {
+			c = AccountsDataSource.getMySQLConnection();
+			s = c.createStatement();
+			result = s.execute(sql);
+		} catch (NamingException e) {			
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			AccountsDataSource.close(c, s);
+		}
+		return result;
+	}
+	
+	public int update(String sql) {
+		Connection c = null;
+		Statement s = null;
+		int count = 0;
+		try {
+			c = AccountsDataSource.getMySQLConnection();
+			s = c.createStatement();
+			count = s.executeUpdate(sql);
+		} catch (NamingException e) {			
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			AccountsDataSource.close(c, s);
+		}
+		return count; 
+	}
+
+	public Company select(String sql) {
+		Connection c = null;
+		Statement s = null;
+		ResultSet r = null;
+		Company company = null;
+		try {
+			c = AccountsDataSource.getMySQLConnection();
+			s = c.createStatement();
+			r = s.executeQuery(sql);
+			company = convert(r);
+		} catch (NamingException e) {			
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			AccountsDataSource.close(c, s);
+		}
+		return company;
+	}
+	
+	
+	public Company convert(ResultSet r) throws SQLException {
+		
+		Company company = new Company();		
+		int index = 0;			
+		company.setId(r.getLong(++index));
+		company.setName(r.getString(++index));
+		company.setMailingName(r.getString(++index));
+		company.setMailingAddress(r.getString(++index));
+		company.setFinancialYear(DateUtil.format(r.getDate(++index), "M/dd/yyyy"));
+		company.setBooksBeginingFrom(DateUtil.format(r.getDate(++index), "M/dd/yyyy"));
+		company.setPasswordProtected(r.getInt(++index) == 0? false: true);
+		company.setPassword(r.getString(++index));
+		company.setStatus(r.getInt(++index));
+		company.setIsDefault(r.getInt(++index));			
+	
+		return company;
 	}
 	
 	

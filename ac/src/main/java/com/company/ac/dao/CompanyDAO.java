@@ -70,20 +70,9 @@ public class CompanyDAO implements QueryNames{
 			c = AccountsDataSource.getMySQLConnection();
 			s = c.createStatement();
 			r = s.executeQuery(DBUtils.getInstance().getQuery(GET_ALL_COMPANIES));
-			int index;
+			
 			while(r.next()) {
-				index = 0;
-				Company company = new Company();
-				company.setId(r.getLong(++index));
-				company.setName(r.getString(++index));
-				company.setMailingName(r.getString(++index));
-				company.setMailingAddress(r.getString(++index));
-				company.setFinancialYear(DateUtil.format(r.getDate(++index), "M/dd/yyyy"));
-				company.setBooksBeginingFrom(DateUtil.format(r.getDate(++index), "M/dd/yyyy"));
-				company.setPasswordProtected(r.getInt(++index) == 0? false: true);
-				company.setPassword(r.getString(++index));
-				company.setStatus(r.getInt(++index));
-				companies.add(company);
+				companies.add(DBUtils.getInstance().convert(r));
 			}
 			
 		} catch (NamingException e) {
@@ -121,7 +110,22 @@ public class CompanyDAO implements QueryNames{
 		return DBUtils.getInstance().insertAndReturnKeys(sql);
 	}
 	
-	public boolean createLedgers(List<String> queries) {		
+	public List<Long> createLedgers(String sql) {		
+		return DBUtils.getInstance().insertAndReturnKeys(sql);
+	}
+
+
+	public boolean addOpeningAndClosingBalance(List<String> queries) {		
 		return DBUtils.getInstance().insertQueries(queries);
 	}
+
+
+	public boolean setDefaultCompany(List<String> queries) {		
+		return DBUtils.getInstance().insertQueries(queries);
+	}
+	
+	public Company getDefaultCompany() {		
+		return DBUtils.getInstance().select("select * from company where is_default = 1");
+	}
+
 }

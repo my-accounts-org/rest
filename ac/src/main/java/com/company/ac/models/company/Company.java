@@ -10,6 +10,7 @@ public class Company {
 	private String password;
 	private boolean passwordProtected;
 	private int status;
+	private int isDefault;
 	
 	public Company() {}
 
@@ -83,6 +84,23 @@ public class Company {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	
+
+	public int getIsDefault() {
+		return isDefault;
+	}
+
+	public void setIsDefault(int isDefault) {
+		this.isDefault = isDefault;
+	}
+
+	@Override
+	public String toString() {
+		return "Company [id=" + id + ", name=" + name + ", mailingName=" + mailingName + ", mailingAddress="
+				+ mailingAddress + ", financialYear=" + financialYear + ", booksBeginingFrom=" + booksBeginingFrom
+				+ ", password=" + password + ", passwordProtected=" + passwordProtected + ", status=" + status
+				+ ", isDefault=" + isDefault + "]";
 	}
 	
 	

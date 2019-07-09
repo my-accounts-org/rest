@@ -8,6 +8,7 @@ import com.company.ac.dao.CompanyDAO;
 import com.company.ac.models.company.Company;
 import com.company.ac.services.Accounts;
 import com.company.ac.services.CompanyService;
+import com.company.ac.utils.DateUtil;
 
 public class CompanyServiceImpl implements CompanyService, Accounts{
 
@@ -19,7 +20,7 @@ public class CompanyServiceImpl implements CompanyService, Accounts{
 		
 		 long id = dao.create(company);
 		 company.setId(id);
-		 boolean r = configure(company)? createDefaultGroups(id) ? createDefaultLedger(id) : false : false;
+		 boolean r = configure(company)? createDefaultGroups(id) ? createDefaultLedger(id, company.getFinancialYear()) : false : false;
 		 if(r) log.info("Company configured successfully");
 		 return company;
 	}
@@ -39,26 +40,42 @@ public class CompanyServiceImpl implements CompanyService, Accounts{
 	}
 
 	@Override
-	public List<Company> getCompanyList() {
-		
+	public List<Company> getCompanyList() {		
 		return dao.getCompanyList();
 	}
 	
-	private boolean createDefaultLedger(long id) {
+	@Override
+	public boolean setDefaultCompany(Company company) {	
 		List<String> queries = new ArrayList<String>();
+		String sql = "update company set is_default = 0 "; 
+		queries.add(sql);
+		sql = "update company set is_default = 1 where config_id = "+company.getId();		
+		queries.add(sql);
+		return dao.setDefaultCompany(queries); 
+	} 
+	
+	private boolean createDefaultLedger(long id, String date) {
+		
+		boolean result = false;
 		
 		String sql = "insert into ledgers_"+id+"(name,under,Fixed_Name) "
 				+ "values('Profit & Loss A/c',0,'PL')";
-		queries.add(sql);
-		sql = "select group_id from groups_"+id+" where group_name='Cash-in-Hand'";
-		sql = "insert into ledgers_"+id+"(name,under,fixed_name) "
-			+ "values('Cash',(" + sql + ") ,'CASH')";
-		queries.add(sql);
 		
-		boolean result = dao.createLedgers(queries);
+		String innerSQL = "select group_id from groups_"+id+" where group_name='Cash-in-Hand'";
+		sql += ", ('Cash',(" + innerSQL + ") ,'CASH')";
 		
-		if(result) {
+		List<Long> keys = dao.createLedgers(sql);
+		
+		if(!keys.isEmpty()) {
+			List<String> queries = new ArrayList<String>();	
+			sql = "insert into opening_balances_" + id + "(ledger_id,balance_as_on,dr_balance,cr_balance) " + "values("
+					+ keys.get(0) + ",'" + DateUtil.format(date, "yyyy-MM-dd") + "',0,0)";
+			queries.add(sql);
+			sql = "insert into opening_balances_" + id + "(ledger_id,balance_as_on,dr_balance,cr_balance) " + "values(" + keys.get(1) + ",'"
+					+ DateUtil.format(date, "yyyy-MM-dd") + "',0,0)";
+			queries.add(sql);
 			
+			result = dao.addOpeningAndClosingBalance(queries);
 		}
 		
 		return result;
@@ -209,5 +226,7 @@ public class CompanyServiceImpl implements CompanyService, Accounts{
 
 		return true;
 	}
+
+	
 
 }
