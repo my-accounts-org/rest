@@ -5,8 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -61,7 +60,7 @@ public class CompanyDAO implements QueryNames{
 	
 	//To do:  Need to have converter and convert db result to model
 	public List<Company> getCompanyList(){
-		List<Company> companies = new ArrayList<Company>();
+		List<Company> companies = new LinkedList<Company>();
 		Connection c = null;
 		Statement s = null;
 		ResultSet r = null;
@@ -72,7 +71,7 @@ public class CompanyDAO implements QueryNames{
 			r = s.executeQuery(DBUtils.getInstance().getQuery(GET_ALL_COMPANIES));
 			
 			while(r.next()) {
-				companies.add(DBUtils.getInstance().convert(r));
+				companies.add((Company) DBUtils.getInstance().convert(r, new Company()));
 			}
 			
 		} catch (NamingException e) {
@@ -88,7 +87,7 @@ public class CompanyDAO implements QueryNames{
 	}
 	
 	public boolean createCompanyTables(List<String> queries, Company company) {
-		List<String> sqlQueries = new ArrayList<String>();
+		List<String> sqlQueries = new LinkedList<String>();
 		for(String sql: queries) {
 			sql = sql.replaceAll(":id", String.valueOf(company.getId()));
 			sqlQueries.add(sql);

@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.naming.NamingException;
 
 import com.company.ac.datasource.AccountsDataSource;
+import com.company.ac.models.Group;
 import com.company.ac.models.company.Company;
 import com.company.ac.utils.DateUtil;
 
@@ -190,7 +191,7 @@ public class DBUtils {
 			c = AccountsDataSource.getMySQLConnection();
 			s = c.createStatement();
 			r = s.executeQuery(sql);
-			company = convert(r);
+			company = convert(r, new Company());
 		} catch (NamingException e) {			
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -201,10 +202,18 @@ public class DBUtils {
 		return company;
 	}
 	
-	
-	public Company convert(ResultSet r) throws SQLException {
+	public Object convert(ResultSet r, Object type) throws SQLException {
 		
-		Company company = new Company();		
+		if(type instanceof Group) {
+			type = convert(r, (Group) type);			
+		} else if(type instanceof Company) {
+			type = convert(r, (Company) type);
+		}
+		
+		return type;
+	}
+	
+	private Company convert(ResultSet r, Company company) throws SQLException {
 		int index = 0;			
 		company.setId(r.getLong(++index));
 		company.setName(r.getString(++index));
@@ -212,12 +221,24 @@ public class DBUtils {
 		company.setMailingAddress(r.getString(++index));
 		company.setFinancialYear(DateUtil.format(r.getDate(++index), "M/dd/yyyy"));
 		company.setBooksBeginingFrom(DateUtil.format(r.getDate(++index), "M/dd/yyyy"));
-		company.setPasswordProtected(r.getInt(++index) == 0? false: true);
+		company.setPasswordProtected(r.getInt(++index) == 1);
 		company.setPassword(r.getString(++index));
 		company.setStatus(r.getInt(++index));
-		company.setIsDefault(r.getInt(++index));			
-	
+		company.setIsDefault(r.getInt(++index));		
 		return company;
+	}
+	
+	private Group convert(ResultSet r, Group group) throws SQLException {
+		int index = 0;
+		group.setId(r.getInt(++index));
+		group.setName(r.getString(++index));
+		group.setUnder(r.getLong(++index));
+		group.setNature(r.getString(++index));
+		group.setGrossAffected(r.getInt(++index) == 1);
+		++index; //config
+		group.setDefault(r.getInt(++index) == 1);			
+		return group;
+		
 	}
 	
 	
