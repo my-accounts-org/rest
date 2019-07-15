@@ -24,4 +24,8 @@ public class GroupResource {
 	public List<Group> getAllGroups(Company company) {
 		return groupService.getGroupList(company.getId());
 	}
+	
+	public Group create(Group group) {
+		return groupService.create(group);
+	}
 }

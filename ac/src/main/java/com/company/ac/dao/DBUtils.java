@@ -35,7 +35,11 @@ public class DBUtils {
 	public static DBUtils getInstance() {
 		return dbUtils;
 	}
-	
+
+	public static String getSQLQuery(String name) {
+		return dbUtils.getQuery(name);
+	}
+
 	public String getQuery(String name) {
 		String query = cachedQuery.get(name);
 		if(query == null) 
@@ -240,7 +244,9 @@ public class DBUtils {
 		group.setNature(r.getString(++index));
 		group.setGrossAffected(r.getInt(++index) == 1);
 		++index; //config
-		group.setDefault(r.getInt(++index) == 1);			
+		group.setDefault(r.getInt(++index) == 1);		
+		++index; //accountType
+		group.setNameOfGroupUnder(r.getString(++index));
 		return group;
 		
 	}

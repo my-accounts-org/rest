@@ -8,6 +8,7 @@ public class Group {
 	private String nature;
 	private boolean isDefault;
 	private boolean grossAffected;
+	private String nameOfGroupUnder;
 	
 	public Group() {
 		
@@ -66,6 +67,16 @@ public class Group {
 	public void setGrossAffected(boolean grossAffected) {
 		this.grossAffected = grossAffected;
 	}
+
+	public String getNameOfGroupUnder() {
+		return nameOfGroupUnder;
+	}
+
+	public void setNameOfGroupUnder(String nameOfGroupUnder) {
+		this.nameOfGroupUnder = nameOfGroupUnder;
+	}
+
+	
 	
 	
 }

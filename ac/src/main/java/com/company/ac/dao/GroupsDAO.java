@@ -14,6 +14,7 @@ import javax.naming.NamingException;
 
 import com.company.ac.datasource.AccountsDataSource;
 import com.company.ac.models.Group;
+import com.company.ac.utils.DateUtil;
 
 public class GroupsDAO implements QueryNames {
 	
@@ -25,7 +26,7 @@ public class GroupsDAO implements QueryNames {
 		Statement s = null;
 		ResultSet r = null;
 		DBUtils dbUtils = DBUtils.getInstance();
-		String sql = dbUtils.getQuery(GET_ALL_GROUPS).replace("{0}", String.valueOf(companyId));
+		String sql = dbUtils.getQuery(GET_ALL_GROUPS).replace(":id", String.valueOf(companyId));
 		try {
 			c = AccountsDataSource.getMySQLConnection();
 			s = c.createStatement();
@@ -45,5 +46,34 @@ public class GroupsDAO implements QueryNames {
 		
 		return groups;
 		
+	}
+
+	public long create(Group group) {
+		Connection c = null;
+		PreparedStatement s = null;
+		ResultSet r = null;
+		long id = 0;
+		
+		try {
+			c = AccountsDataSource.getMySQLConnection();
+			s = c.prepareStatement(DBUtils.getInstance().getQuery(CREATE_GROUP),  PreparedStatement.RETURN_GENERATED_KEYS);			
+			
+			s.execute();
+			r = s.getGeneratedKeys();
+			if(r.next()) {
+				id = r.getLong(1);
+			}			
+			
+		} catch (NamingException e) {			
+			e.printStackTrace();
+		} catch (SQLException e) {			
+			e.printStackTrace();
+		} finally {
+			AccountsDataSource.close(c, s);
+		}
+		
+		log.info("Created id = "+id+" | if 0 then company creation failed");
+		
+		return id;
 	}
 }

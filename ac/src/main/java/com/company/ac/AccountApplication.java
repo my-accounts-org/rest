@@ -9,7 +9,6 @@ import javax.ws.rs.core.Application;
 import com.company.ac.resources.AuthenticationResource;
 import com.company.ac.resources.CompanyResource;
 import com.company.ac.resources.GroupResource;
-import com.company.ac.resources.LedgerResource;
 
 @ApplicationPath("api")
 public class AccountApplication extends Application {
@@ -22,7 +21,6 @@ public class AccountApplication extends Application {
         classes.add(AuthenticationResource.class);
         classes.add(CompanyResource.class);
         classes.add(GroupResource.class);
-        classes.add(LedgerResource.class);
         return classes;
     }
 }

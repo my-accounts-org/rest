@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.company.ac.dao.CompanyDAO;
+import com.company.ac.dao.DBUtils;
+import com.company.ac.dao.QueryNames;
 import com.company.ac.models.company.Company;
 import com.company.ac.services.Accounts;
 import com.company.ac.services.CompanyService;
 import com.company.ac.utils.DateUtil;
 
-public class CompanyServiceImpl implements CompanyService, Accounts{
+public class CompanyServiceImpl implements CompanyService, Accounts, QueryNames{
 
 	private CompanyDAO dao = new CompanyDAO();
 	private Logger log = Logger.getLogger(CompanyServiceImpl.class.getName());
@@ -27,15 +29,6 @@ public class CompanyServiceImpl implements CompanyService, Accounts{
 
 	@Override
 	public boolean delete(long id) {		
-		List<String> queries = new ArrayList<String>();
-		queries.add("DROP TABLE `current_period_"+id+"`");
-		queries.add("DROP TABLE `opening_balances_"+id+"`");
-		queries.add("DROP TABLE `groups_"+id+"`");
-		queries.add("DROP TABLE `journal_entries_"+id+"`");
-		queries.add("DROP TABLE `ledgers_"+id+"`");		
-		queries.add("DROP TABLE `voucher_entries_"+id+"`");
-		queries.add("DROP TABLE `vouchers_"+id+"`");		
-		dao.dropTables(queries);
 		return dao.delete(id);
 	}
 
@@ -47,9 +40,9 @@ public class CompanyServiceImpl implements CompanyService, Accounts{
 	@Override
 	public boolean setDefaultCompany(Company company) {	
 		List<String> queries = new ArrayList<String>();
-		String sql = "update company set is_default = 0 "; 
+		String sql = DBUtils.getSQLQuery(SET_ALL_COMPANY_TO_DEFAULT); 
 		queries.add(sql);
-		sql = "update company set is_default = 1 where config_id = "+company.getId();		
+		sql = DBUtils.getSQLQuery(SET_DEFAULT_COMPANY).replace("{0}", String.valueOf(company.getId()));		
 		queries.add(sql);
 		return dao.setDefaultCompany(queries); 
 	} 
@@ -83,14 +76,8 @@ public class CompanyServiceImpl implements CompanyService, Accounts{
 	
 	private boolean createDefaultGroups(long id) {
 		
-		String sql = "insert into groups_"+id+"(group_name,group_under,group_nature,is_gross_affected,account_type,config_id,is_default) values ";
-		for (int i = 0; i < 15; i++) {
-			sql += " (" + groups[i] + "," + id  + ",1), ";			
-		}
-		int comma = sql.lastIndexOf(",");
-		sql = sql.substring(0, comma);
-		log.info(sql);		
-		
+		String sql = DBUtils.getSQLQuery(CREATE_DEFAULT_PRIMARY_GROUPS).replaceAll(":id", String.valueOf(id));
+				
 		List<Long> result = dao.createGroups(sql);
 				
 		sql = "insert into groups_"+id+"(group_name,group_nature,is_gross_affected,group_under,config_id,is_default,account_type) values "
@@ -108,6 +95,7 @@ public class CompanyServiceImpl implements CompanyService, Accounts{
 				+ "(" + groups[26] + "," + result.get(Accounts.CURRENT_ASSETS) + "," + id + ", 1, '_CASH_'),"
 				+ "(" + groups[27] + "," + result.get(Accounts.CURRENT_ASSETS) + "," + id + ", 1, '_BANK_')";		
 		
+		log.info(sql);
 		return !dao.createGroups(sql).isEmpty();
 	}
 	

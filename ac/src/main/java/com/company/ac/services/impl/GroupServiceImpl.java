@@ -17,7 +17,9 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	public Group create(Group group) {
-		return null;
+		long id = dao.create(group);
+		group.setId(id);
+		return group;
 	}
 
 	@Override

@@ -96,7 +96,10 @@ public class CompanyDAO implements QueryNames{
 	}
 	
 	public boolean delete(long id) {		
-		return DBUtils.getInstance().delete(id, "company");
+		String sql = DBUtils.getSQLQuery(DELETE_ALL_COMPANY_TABLES).replaceAll(":id", String.valueOf(id));		
+		log.info("SQL for deleting companies: "+sql);
+		int i = DBUtils.getInstance().update(sql) ;
+		return DBUtils.getInstance().delete(id, "company") ;
 		
 	}
 	
