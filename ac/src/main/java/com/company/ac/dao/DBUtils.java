@@ -18,6 +18,7 @@ import javax.naming.NamingException;
 
 import com.company.ac.datasource.AccountsDataSource;
 import com.company.ac.models.Group;
+import com.company.ac.models.Ledger;
 import com.company.ac.models.company.Company;
 import com.company.ac.utils.DateUtil;
 
@@ -209,6 +210,9 @@ public class DBUtils {
 		} else if(type instanceof Company) {
 			type = convert(r, (Company) type);
 		}
+		else if(type instanceof Ledger) {
+			type = convert(r, (Ledger) type);
+		}
 		
 		return type;
 	}
@@ -238,6 +242,17 @@ public class DBUtils {
 		++index; //config
 		group.setDefault(r.getInt(++index) == 1);			
 		return group;
+		
+	}
+	
+	private Ledger convert(ResultSet r, Ledger ledger) throws SQLException {
+		int index = 0;
+		ledger.setId(r.getLong(++index));
+		ledger.setName(r.getString(++index));
+		ledger.setUnder(r.getLong(++index));
+		ledger.setOpeningBalance(r.getLong(++index));
+		ledger.setLedgerUnderGroupName(r.getString(10));
+		return ledger;
 		
 	}
 	
