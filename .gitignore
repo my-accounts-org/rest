@@ -4,6 +4,7 @@
 /dist
 /tmp
 /out-tsc
+/target
 
 # dependencies
 /node_modules
@@ -14,11 +15,11 @@ speed-measure-plugin.json
 
 # IDEs and editors
 /.idea
-.project
-.classpath
+#.project
+#.classpath
 .c9/
 *.launch
-.settings/
+#.settings/
 *.sublime-workspace
 .metadata
 
